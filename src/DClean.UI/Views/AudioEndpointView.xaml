@@ -1,0 +1,203 @@
+<UserControl x:Class="DClean.UI.Views.AudioEndpointView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+
+            <TextBlock Text="ניהול שמע ופרטיות" FontSize="24" FontWeight="Bold"
+                       Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="אתחול שירותי שמע, נקודות קצה ובקרת גישת מיקרופון / מצלמה"
+                       Foreground="#A0A0B0" FontSize="13" Margin="0,0,0,20"/>
+
+            <!-- Toolbar -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <WrapPanel Margin="0,0,0,12">
+                        <Button Content="טען נתונים"
+                                Command="{Binding LoadCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/>
+                        <Button Content="אתחל שירותי שמע"
+                                Command="{Binding RestartAudioCommand}"
+                                Style="{StaticResource DangerButtonStyle}"/>
+                    </WrapPanel>
+                    <ProgressBar IsIndeterminate="{Binding IsBusy}" Height="4"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"/>
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{StaticResource ForegroundBrush}" FontSize="13"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Audio Endpoints -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="נקודות קצה פעילות (Render)" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding Endpoints}" MaxHeight="160"
+                              Background="Transparent" BorderThickness="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="שם ידידותי" Width="260"
+                                    DisplayMemberBinding="{Binding FriendlyName}"/>
+                                <GridViewColumn Header="תיאור" Width="200"
+                                    DisplayMemberBinding="{Binding Description}"/>
+                                <GridViewColumn Header="נעול בבלעדיות" Width="120">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontSize="14">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="✅ פנוי"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsExclusiveLocked}" Value="True">
+                                                                <Setter Property="Text" Value="🔒 נעול"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Microphone Privacy -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="גישת אפליקציות למיקרופון" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding MicApps}" MaxHeight="200"
+                              Background="Transparent" BorderThickness="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="אפליקציה" Width="320"
+                                    DisplayMemberBinding="{Binding AppName}"/>
+                                <GridViewColumn Header="גישה" Width="90">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="✅ מורשה"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                                <Setter Property="Text" Value="🚫 חסום"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="פעולות" Width="160">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="אפשר"
+                                                        Command="{Binding DataContext.AllowAccessCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource GhostButtonStyle}"
+                                                        Padding="6,3" FontSize="11" Margin="0,0,4,0"/>
+                                                <Button Content="חסום"
+                                                        Command="{Binding DataContext.BlockAccessCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="6,3" FontSize="11"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Camera Privacy -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="גישת אפליקציות למצלמה" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding CameraApps}" MaxHeight="150"
+                              Background="Transparent" BorderThickness="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="אפליקציה" Width="320"
+                                    DisplayMemberBinding="{Binding AppName}"/>
+                                <GridViewColumn Header="גישה" Width="90">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="✅ מורשה"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsAllowed}" Value="False">
+                                                                <Setter Property="Text" Value="🚫 חסום"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="פעולות" Width="160">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="אפשר"
+                                                        Command="{Binding DataContext.AllowAccessCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource GhostButtonStyle}"
+                                                        Padding="6,3" FontSize="11" Margin="0,0,4,0"/>
+                                                <Button Content="חסום"
+                                                        Command="{Binding DataContext.BlockAccessCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource DangerButtonStyle}"
+                                                        Padding="6,3" FontSize="11"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

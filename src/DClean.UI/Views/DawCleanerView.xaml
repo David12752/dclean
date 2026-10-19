@@ -1,0 +1,141 @@
+<UserControl x:Class="DClean.UI.Views.DawCleanerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+
+            <TextBlock Text="ניקוי DAW ופלאגינים" FontSize="24" FontWeight="Bold"
+                       Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="איתור cache של תוכנות מוזיקה, פלאגינים יתומים וספריות שבורות"
+                       Foreground="#A0A0B0" FontSize="13" Margin="0,0,0,20"/>
+
+            <!-- Toolbar -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <WrapPanel Margin="0,0,0,12">
+                        <Button Content="סרוק"
+                                Command="{Binding ScanCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/>
+                        <Button Content="בחר הכל"
+                                Command="{Binding SelectAllCachesCommand}"
+                                Style="{StaticResource GhostButtonStyle}" Margin="0,0,4,0"/>
+                        <Button Content="בטל בחירה"
+                                Command="{Binding DeselectAllCachesCommand}"
+                                Style="{StaticResource GhostButtonStyle}" Margin="0,0,8,0"/>
+                        <Button Content="מחק נבחרים"
+                                Command="{Binding DeleteSelectedCommand}"
+                                Style="{StaticResource DangerButtonStyle}"/>
+                    </WrapPanel>
+                    <ProgressBar IsIndeterminate="{Binding IsScanning}" Height="4"
+                                 Visibility="{Binding IsScanning, Converter={StaticResource BoolToVisibility}}"/>
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{StaticResource ForegroundBrush}" FontSize="13"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <TextBlock Foreground="#A0A0B0" FontSize="12">
+                            <Run Text="שוחרר: "/>
+                            <Run Text="{Binding FreedBytes, Converter={StaticResource BytesFormat}}"
+                                 Foreground="{StaticResource SuccessBrush}" FontWeight="Bold"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- DAW Caches -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="תיקיות Cache של DAW" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding Caches}" MaxHeight="200"
+                              Background="Transparent" BorderThickness="0"
+                              SelectionMode="Multiple">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="תוכנה" Width="120" DisplayMemberBinding="{Binding Daw}"/>
+                                <GridViewColumn Header="תיאור" Width="160" DisplayMemberBinding="{Binding Description}"/>
+                                <GridViewColumn Header="גודל" Width="90">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding SizeBytes, Converter={StaticResource BytesFormat}}"
+                                                       Foreground="{StaticResource WarningBrush}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="נתיב" Width="300" DisplayMemberBinding="{Binding CachePath}"/>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <EventSetter Event="PreviewMouseLeftButtonUp"
+                                             Handler="CacheItem_Click"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Plugins -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="פלאגינים" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding Plugins}" MaxHeight="200"
+                              Background="Transparent" BorderThickness="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="שם" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                                <GridViewColumn Header="פורמט" Width="70" DisplayMemberBinding="{Binding Format}"/>
+                                <GridViewColumn Header="גודל" Width="80">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding SizeBytes, Converter={StaticResource BytesFormat}}"
+                                                       Foreground="{StaticResource ForegroundBrush}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="סטטוס" Width="90" DisplayMemberBinding="{Binding Status}"/>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="Suspicious">
+                                        <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+            <!-- Broken Libraries -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="ספריות סמפלים שבורות" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding BrokenLibraries}" MaxHeight="150"
+                              Background="Transparent" BorderThickness="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="ספק" Width="150" DisplayMemberBinding="{Binding Publisher}"/>
+                                <GridViewColumn Header="ספרייה" Width="180" DisplayMemberBinding="{Binding LibraryName}"/>
+                                <GridViewColumn Header="נתיב שבור" Width="320" DisplayMemberBinding="{Binding BrokenPath}"/>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

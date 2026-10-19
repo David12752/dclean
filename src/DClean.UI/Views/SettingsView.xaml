@@ -1,0 +1,91 @@
+<UserControl x:Class="DClean.UI.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{StaticResource BackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ Page Header ══════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Padding="28,22,28,18"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,0,1">
+            <StackPanel>
+                <TextBlock Text="הגדרות"
+                           FontSize="22" FontWeight="Bold"/>
+                <TextBlock Text="כוונון התנהגות הסריקה ופעולות הניקוי"
+                           FontSize="12"
+                           Foreground="{StaticResource MutedBrush}"
+                           Margin="0,3,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Padding="28,20,28,24">
+            <StackPanel MaxWidth="640">
+
+                <!-- Age filter card -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="סינון לפי גיל קובץ"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="מניעת מחיקת קבצי התקנה פעילים"
+                                   FontSize="11"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   Margin="0,0,0,14"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="מחק קבצים ישנים מ-"
+                                       VerticalAlignment="Center" FontSize="13"
+                                       Margin="0,0,10,0"/>
+                            <TextBox Text="{Binding MinFileAgeHours, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="72" FontSize="13"/>
+                            <TextBlock Text="שעות"
+                                       VerticalAlignment="Center" FontSize="13"
+                                       Margin="10,0,0,0"/>
+                        </StackPanel>
+                        <Border Background="{StaticResource BorderBrush}"
+                                Height="1" Margin="0,14"/>
+                        <TextBlock FontSize="11" Foreground="{StaticResource MutedBrush}">
+                            <Run Text="ברירת מחדל: "/>
+                            <Run Text="48 שעות" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold"/>
+                            <Run Text=" — מונע מחיקת קבצי CBS, Windows Update ו-MSI פעילים"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Scan scope card -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="היקף הסריקה"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="בחר אילו תיקיות יכללו בסריקה"
+                                   FontSize="11"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   Margin="0,0,0,16"/>
+
+                        <CheckBox Content="סריקת תיקיית Temp של Windows  (C:\Windows\Temp)"
+                                  IsChecked="{Binding ScanWindowsTemp}"
+                                  Margin="0,0,0,12"/>
+                        <CheckBox Content="סריקת מטמון דפדפנים  (Chrome, Edge, Firefox)"
+                                  IsChecked="{Binding ScanBrowserCaches}"
+                                  Margin="0,0,0,12"/>
+                        <CheckBox Content="סריקת תיקיית Temp של המשתמש  (%TEMP%)"
+                                  IsChecked="{Binding ScanUserTemp}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Save -->
+                <Button Content="שמור הגדרות"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        HorizontalAlignment="Left"
+                        Padding="22,10"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,113 @@
+<UserControl x:Class="DClean.UI.Views.ComponentStoreView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+
+            <TextBlock Text="ניקוי WinSxS ובדיקת קבצי מערכת" FontSize="24" FontWeight="Bold"
+                       Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="DISM Component Store cleanup + SFC /scannow"
+                       Foreground="#A0A0B0" FontSize="13" Margin="0,0,0,20"/>
+
+            <!-- Analysis Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="ניתוח Component Store" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <WrapPanel Margin="0,0,0,12">
+                        <Button Content="נתח (DISM AnalyzeComponentStore)"
+                                Command="{Binding AnalyzeCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/>
+                    </WrapPanel>
+
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#252538" CornerRadius="8" Padding="16" Margin="0,0,8,0">
+                            <StackPanel>
+                                <TextBlock Text="גודל Component Store" Foreground="#A0A0B0" FontSize="12"/>
+                                <TextBlock Text="{Binding StoreSizeBytes, Converter={StaticResource BytesFormat}}"
+                                           Foreground="{StaticResource ForegroundBrush}"
+                                           FontSize="22" FontWeight="Bold" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Background="#252538" CornerRadius="8" Padding="16" Margin="8,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="ניתן לפנות" Foreground="#A0A0B0" FontSize="12"/>
+                                <TextBlock Text="{Binding ReclaimableBytes, Converter={StaticResource BytesFormat}}"
+                                           Foreground="{StaticResource SuccessBrush}"
+                                           FontSize="22" FontWeight="Bold" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <TextBlock Text="{Binding Recommendation}" Margin="0,12,0,0"
+                               Foreground="{StaticResource ForegroundBrush}" FontSize="13"
+                               Visibility="{Binding Recommendation, Converter={StaticResource StringNotEmptyToVisibility}}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Cleanup Card -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="ניקוי Component Store" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <CheckBox IsChecked="{Binding ResetBase}"
+                              IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}"
+                              Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}">
+                                <Run Text="ResetBase"/>
+                                <Run Text=" ⚠️ לא הפיך!" Foreground="{StaticResource DangerBrush}"/>
+                            </TextBlock>
+                            <TextBlock Text="אחרי פעולה זו לא ניתן לבטל עדכוני Windows. משחרר יותר מקום."
+                                       Foreground="#A0A0B0" FontSize="11"/>
+                        </StackPanel>
+                    </CheckBox>
+
+                    <WrapPanel>
+                        <Button Content="נקה Component Store (DISM StartComponentCleanup)"
+                                Command="{Binding CleanupCommand}"
+                                Style="{StaticResource DangerButtonStyle}" Margin="0,0,8,0"/>
+                        <Button Content="בדוק קבצי מערכת (SFC /scannow)"
+                                Command="{Binding RunSfcCommand}"
+                                Style="{StaticResource GhostButtonStyle}" Margin="0,0,8,0"/>
+                        <Button Content="בטל"
+                                Command="{Binding CancelCommand}"
+                                Style="{StaticResource GhostButtonStyle}"
+                                IsEnabled="{Binding IsBusy}"/>
+                    </WrapPanel>
+
+                    <ProgressBar IsIndeterminate="{Binding IsBusy}" Height="4" Margin="0,12,0,4"
+                                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"/>
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{StaticResource ForegroundBrush}" FontSize="13"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Log -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="פלט" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
+                    <ListBox ItemsSource="{Binding Log}" MaxHeight="280"
+                             Background="Transparent" BorderThickness="0"
+                             FontFamily="Consolas" FontSize="12"
+                             VirtualizingPanel.IsVirtualizing="True">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Padding"   Value="2,1"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

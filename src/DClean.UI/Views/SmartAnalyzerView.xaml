@@ -1,0 +1,307 @@
+<UserControl x:Class="DClean.UI.Views.SmartAnalyzerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <Grid Background="{StaticResource BackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Padding="28,20,28,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="S.M.A.R.T. — בריאות כוננים" FontSize="22" FontWeight="Bold"/>
+                    <TextBlock Text="ניתוח מקצועי של תקינות SSD/HDD, טמפרטורה, TRIM ואינדיקציות כשל"
+                               FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource SelectionBadgeStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Drives.Count}" FontFamily="Consolas" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}"/>
+                            <TextBlock Text=" כוננים" Foreground="{StaticResource MutedBrush}" Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SelectionBadgeStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding AttentionDriveCount}" FontFamily="Consolas" FontWeight="Bold" Foreground="{StaticResource WarningBrush}"/>
+                            <TextBlock Text=" דורשים בדיקה" Foreground="{StaticResource MutedBrush}" Margin="4,0,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Margin="28,12,28,0" Style="{StaticResource CardStyle}" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="נתח כוננים" Command="{Binding AnalyzeCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/>
+                <Button Grid.Column="1" Content="הפעל TRIM" Command="{Binding EnableTrimCommand}"
+                        Style="{StaticResource GhostButtonStyle}"/>
+                <ProgressBar Grid.Column="2" Margin="16,0,16,0" Height="4"
+                             IsIndeterminate="{Binding IsLoading}"
+                             Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"
+                             VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="3" Text="{Binding StatusText}" FontSize="12"
+                           Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" MaxWidth="320"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="28,12,28,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Padding="14,10" BorderThickness="0,0,0,1" BorderBrush="{StaticResource BorderBrush}">
+                        <TextBlock Text="כוננים מזוהים" FontSize="13" FontWeight="SemiBold"/>
+                    </Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Drives}" SelectedItem="{Binding SelectedDrive}"
+                             BorderThickness="0" Background="Transparent">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="bd" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="14,12">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#141D2A"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="bd" Property="Background" Value="#0B2030"/>
+                                                    <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Model}" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding SerialNumber}" FontFamily="Consolas" FontSize="10" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                                        <WrapPanel Margin="0,8,0,0">
+                                            <Border Style="{StaticResource SelectionBadgeStyle}" Padding="8,3" Margin="0,0,6,6">
+                                                <TextBlock Text="{Binding CapacityBytes, Converter={StaticResource BytesFormat}}" FontSize="10" Foreground="{StaticResource SecondaryForegroundBrush}"/>
+                                            </Border>
+                                            <Border Style="{StaticResource SelectionBadgeStyle}" Padding="8,3" Margin="0,0,6,6">
+                                                <TextBlock FontSize="10"
+                                                           Foreground="{Binding TemperatureCelsius, Converter={StaticResource TemperatureToBrush}}">
+                                                    <Run Text="טמפ' "/>
+                                                    <Run Text="{Binding TemperatureCelsius}"/>
+                                                    <Run Text="°C"/>
+                                                </TextBlock>
+                                            </Border>
+                                            <Border Style="{StaticResource SelectionBadgeStyle}" Padding="8,3" Margin="0,0,6,6">
+                                                <TextBlock Text="{Binding HealthScore, Converter={StaticResource HealthScoreToLabel}}" FontSize="10"
+                                                           Foreground="{Binding HealthScore, Converter={StaticResource HealthScoreToBrush}}"/>
+                                            </Border>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Width="64" Height="64" CornerRadius="32" Margin="12,0,0,0"
+                                            Background="{Binding HealthScore, Converter={StaticResource HealthScoreToBrush}}">
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding HealthScore}" Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            <TextBlock Text="/100" Foreground="#E8F2FF" FontSize="9" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+                    <Grid>
+                        <TextBlock Text="בחר כונן מהרשימה" FontSize="14" Foreground="{StaticResource MutedBrush}" HorizontalAlignment="Center" Margin="0,24">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedDrive}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedDrive}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding SelectedDrive.Model}" FontSize="18" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding SelectedDrive.SerialNumber}" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+                                <WrapPanel Margin="0,12,0,0">
+                                    <Border Style="{StaticResource SelectionBadgeStyle}"><TextBlock Text="{Binding SelectedDrive.CapacityBytes, Converter={StaticResource BytesFormat}}" FontSize="11" Foreground="{StaticResource SecondaryForegroundBrush}"/></Border>
+                                    <Border Style="{StaticResource SelectionBadgeStyle}"><TextBlock Text="{Binding SelectedDrive.PowerOnHours, StringFormat={}שעות עבודה {0:N0}}" FontSize="11" Foreground="{StaticResource SecondaryForegroundBrush}"/></Border>
+                                    <Border Style="{StaticResource SelectionBadgeStyle}"><TextBlock Text="{Binding SelectedDrive.TotalBytesWritten, Converter={StaticResource BytesFormat}, StringFormat={}נכתב {0}}" FontSize="11" Foreground="{StaticResource SecondaryForegroundBrush}"/></Border>
+                                    <Border Style="{StaticResource SelectionBadgeStyle}">
+                                        <TextBlock FontSize="11">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="TRIM פעיל"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedDrive.TrimEnabled}" Value="False">
+                                                            <Setter Property="Text" Value="TRIM כבוי"/>
+                                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <Border Grid.Column="1" Width="96" Height="96" CornerRadius="48" Margin="16,0,0,0"
+                                    Background="{Binding SelectedDrive.HealthScore, Converter={StaticResource HealthScoreToBrush}}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedDrive.HealthScore}" Foreground="White" FontSize="30" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SelectedDrive.HealthScore, Converter={StaticResource HealthScoreToLabel}}" Foreground="#EEF9FF" FontSize="11" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource WarnStripStyle}" Margin="0,12,0,12"
+                        Visibility="{Binding HasSelectedDriveAttention, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource WarningBrush}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding SelectedDriveAttentionText}" FontSize="11" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Padding="14,10" BorderThickness="0,0,0,1" BorderBrush="{StaticResource BorderBrush}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="מאפייני S.M.A.R.T. של הכונן הנבחר" FontSize="13" FontWeight="SemiBold"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Border Style="{StaticResource SelectionBadgeStyle}">
+                                        <TextBlock Text="{Binding CriticalAttributeCount, StringFormat={}קריטיים {0}}" FontSize="10" Foreground="{StaticResource WarningBrush}"/>
+                                    </Border>
+                                    <Border Style="{StaticResource SelectionBadgeStyle}" Margin="0">
+                                        <TextBlock Text="{Binding FailedAttributeCount, StringFormat={}חריגים {0}}" FontSize="10" Foreground="{StaticResource DangerBrush}"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding Attributes}" BorderThickness="0" Background="Transparent">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID" Width="58">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Id, StringFormat=0x{0:X2}}" FontFamily="Consolas" FontSize="11"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="מאפיין" Width="230" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="ערך" Width="56" DisplayMemberBinding="{Binding Value}"/>
+                                    <GridViewColumn Header="Worst" Width="56" DisplayMemberBinding="{Binding Worst}"/>
+                                    <GridViewColumn Header="Threshold" Width="70" DisplayMemberBinding="{Binding Threshold}"/>
+                                    <GridViewColumn Header="Raw" Width="120" DisplayMemberBinding="{Binding RawValue}"/>
+                                    <GridViewColumn Header="מצב" Width="90">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource SelectionBadgeStyle}" Padding="8,3" Margin="0">
+                                                    <TextBlock FontSize="10" HorizontalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="תקין"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsHealthy}" Value="False">
+                                                                        <Setter Property="Text" Value="חריג"/>
+                                                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Border>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsCritical}" Value="True">
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

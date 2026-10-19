@@ -1,0 +1,235 @@
+<UserControl x:Class="DClean.UI.Views.DebloaterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DClean.UI.ViewModels"
+             FlowDirection="RightToLeft">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="28,20,28,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="מנקה מערכת" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource ForegroundBrush}"/>
+                    <TextBlock Text="הסרת אפליקציות Appx מיותרות · כיבוי Telemetry · שיפור פרטיות"
+                               FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="טען" Command="{Binding LoadCommand}"
+                        Style="{StaticResource GhostButtonStyle}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Tab bar + status -->
+        <Border Grid.Row="1" Margin="28,12,28,0"
+                Style="{StaticResource CardStyle}" Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Padding="14,6" Margin="0,0,6,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource GhostButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveTab}" Value="0">
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock>
+                            <Run Text="חבילות Appx ("/>
+                            <Run Text="{Binding Packages.Count, Mode=OneWay}"/>
+                            <Run Text=")"/>
+                        </TextBlock>
+                        <Button.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding SetActiveTabCommand}"
+                                          CommandParameter="0"/>
+                        </Button.InputBindings>
+                    </Button>
+                    <Button Padding="14,6">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource GhostButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveTab}" Value="1">
+                                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock>
+                            <Run Text="שיפורי פרטיות ("/>
+                            <Run Text="{Binding Tweaks.Count, Mode=OneWay}"/>
+                            <Run Text=")"/>
+                        </TextBlock>
+                        <Button.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding SetActiveTabCommand}"
+                                          CommandParameter="1"/>
+                        </Button.InputBindings>
+                    </Button>
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="{Binding StatusText}"
+                           Foreground="{StaticResource MutedBrush}"
+                           FontSize="12" VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+
+                <Button Grid.Column="2" Content="🗑️ הסר נבחרים"
+                        Command="{Binding RemoveSelectedPackagesCommand}"
+                        Padding="12,6">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource DangerButtonStyle}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTab}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Content panels -->
+        <Grid Grid.Row="2" Margin="28,10,28,20">
+
+            <!-- Appx tab -->
+            <Border>
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ActiveTab}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <ListView ItemsSource="{Binding Packages}"
+                          Background="Transparent" BorderThickness="0"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="34">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AppxPackageViewModel}">
+                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                                  HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="שם חבילה" Width="340">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AppxPackageViewModel}">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource ForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis" MaxWidth="330"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="גרסה" Width="110">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AppxPackageViewModel}">
+                                        <TextBlock Text="{Binding Version}"
+                                                   FontFamily="Consolas" FontSize="11"
+                                                   Foreground="{StaticResource MutedBrush}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="סוג" Width="120">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AppxPackageViewModel}">
+                                        <Border CornerRadius="5" Padding="8,3"
+                                                Background="{Binding SafetyBrush}">
+                                            <TextBlock Text="{Binding SafetyLabel}"
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="#0A1018"
+                                                       HorizontalAlignment="Center"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Border>
+
+            <!-- Tweaks tab -->
+            <Border>
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource CardStyle}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ActiveTab}" Value="1">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Tweaks}" Margin="0,4">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:TelemetryTweakViewModel}">
+                                <Border Margin="0,0,0,1" Padding="16,14"
+                                        BorderThickness="0,0,0,1"
+                                        BorderBrush="{StaticResource BorderBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Background="{StaticResource BorderBrush}"
+                                                        CornerRadius="4" Padding="6,2"
+                                                        Margin="0,0,8,0">
+                                                    <TextBlock Text="{Binding Category}"
+                                                               FontSize="10" FontFamily="Consolas"
+                                                               Foreground="{StaticResource MutedBrush}"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource ForegroundBrush}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Description}"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource MutedBrush}"
+                                                       Margin="0,5,0,0"
+                                                       TextWrapping="Wrap" MaxWidth="500"/>
+                                        </StackPanel>
+                                        <ToggleButton Grid.Column="1"
+                                                      IsChecked="{Binding IsEnabled}"
+                                                      VerticalAlignment="Center"
+                                                      Width="44" Height="24"
+                                                      Style="{StaticResource ToggleSwitchStyle}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

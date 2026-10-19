@@ -1,0 +1,133 @@
+<UserControl x:Class="DClean.UI.Views.ContextMenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DClean.UI.ViewModels"
+             FlowDirection="RightToLeft">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="28,20,28,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="מנהל תפריט הקשר" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource ForegroundBrush}"/>
+                    <TextBlock Text="הפעל · כבה · מחק ערכים מתפריט ההקשר של Windows"
+                               FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="רענן" Command="{Binding LoadCommand}"
+                        Style="{StaticResource GhostButtonStyle}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="1" Margin="28,12,28,0"
+                Style="{StaticResource CardStyle}" Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource SearchBoxStyle}"
+                         Tag="חפש לפי שם או סוג..." MaxWidth="320"
+                         HorizontalAlignment="Right"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="בחר הכל"
+                        Command="{Binding SelectAllCommand}"
+                        Style="{StaticResource CompactGhostButtonStyle}"
+                        Margin="0,0,6,0"/>
+                    <Button Content="בטל בחירה"
+                        Command="{Binding DeselectAllCommand}"
+                        Style="{StaticResource CompactGhostButtonStyle}"
+                        Margin="0,0,12,0"/>
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{StaticResource MutedBrush}"
+                               FontSize="11" VerticalAlignment="Center" Margin="0,0,14,0"
+                               TextTrimming="CharacterEllipsis" MaxWidth="260"/>
+                    <Button Content="🗑️ מחק נבחרים"
+                            Command="{Binding DeleteSelectedCommand}"
+                            Style="{StaticResource DangerButtonStyle}"
+                            Padding="10,6" FontSize="12"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- List -->
+        <Border Grid.Row="2" Margin="28,10,28,20"
+                Style="{StaticResource CardStyle}" Padding="0">
+            <ListView ItemsSource="{Binding Entries}"
+                      Background="Transparent" BorderThickness="0"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="34">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ContextMenuEntryViewModel}">
+                                    <CheckBox IsChecked="{Binding IsSelected}"
+                                              HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="שם" Width="260">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ContextMenuEntryViewModel}">
+                                    <TextBlock Text="{Binding DisplayName}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ForegroundBrush}"
+                                               TextTrimming="CharacterEllipsis" MaxWidth="250"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="סוג" Width="140">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ContextMenuEntryViewModel}">
+                                    <Border CornerRadius="5" Padding="7,3"
+                                            Background="{Binding TypeBrush}">
+                                        <TextBlock Text="{Binding TypeLabel}"
+                                                   FontSize="10" FontWeight="SemiBold"
+                                                   Foreground="#0A1018"
+                                                   HorizontalAlignment="Center"/>
+                                    </Border>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="פקודה / נתיב" Width="320">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ContextMenuEntryViewModel}">
+                                    <TextBlock Text="{Binding Command}"
+                                               FontFamily="Consolas" FontSize="10"
+                                               Foreground="{StaticResource MutedBrush}"
+                                               TextTrimming="CharacterEllipsis" MaxWidth="310"
+                                               ToolTip="{Binding Command}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="מצב" Width="90">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ContextMenuEntryViewModel}">
+                                    <ToggleButton IsChecked="{Binding IsEnabled}"
+                                                  Style="{StaticResource ToggleSwitchStyle}"
+                                                  HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,253 @@
+<UserControl x:Class="DClean.UI.Views.PerformanceTunerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FlowDirection="RightToLeft">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="28,20,28,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="מכוון ביצועים" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource ForegroundBrush}"/>
+                    <TextBlock Text="תוכנית חשמל · USB Selective Suspend · Core Parking"
+                               FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="רענן" Command="{Binding LoadProfileCommand}"
+                        Style="{StaticResource GhostButtonStyle}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Body -->
+        <Grid Grid.Row="1" Margin="28,16,28,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Current Status -->
+            <StackPanel Grid.Column="0">
+
+                <!-- Active plan card -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="תוכנית חשמל פעילה"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{StaticResource MutedBrush}"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ActivePlanName}"
+                                   FontSize="16" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- USB Selective Suspend -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="USB Selective Suspend"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource ForegroundBrush}"/>
+                            <TextBlock Text="חיסכון חשמל — מכבה USB כשלא בשימוש"
+                                       FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                       Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" CornerRadius="5" Padding="8,3"
+                                VerticalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#FF4D5B"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding UsbSuspendEnabled}" Value="True">
+                                            <Setter Property="Background" Value="#00D4A0"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Foreground="#0A1018" FontWeight="Bold" FontSize="11">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="כבוי"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding UsbSuspendEnabled}" Value="True">
+                                                <Setter Property="Text" Value="פעיל"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- Core Parking -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Core Parking"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{StaticResource ForegroundBrush}"/>
+                            <TextBlock Text="חיסכון חשמל — כיבוי ליבות לא פעילות"
+                                       FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                       Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border Grid.Column="1" CornerRadius="5" Padding="8,3"
+                                VerticalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="#FF4D5B"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CoreParkingEnabled}" Value="True">
+                                            <Setter Property="Background" Value="#00D4A0"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Foreground="#0A1018" FontWeight="Bold" FontSize="11">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="כבוי"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CoreParkingEnabled}" Value="True">
+                                                <Setter Property="Text" Value="פעיל"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <!-- Right: Tuning options -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Options card -->
+                <Border Grid.Row="0" Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="הגדרות מיטוב" FontSize="15" FontWeight="Bold"
+                                   Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,16"/>
+
+                        <!-- Option 1 -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox IsChecked="{Binding ApplyUltimatePlan}"
+                                      VerticalAlignment="Top" Margin="0,2,12,0"/>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="הפעל תוכנית: Ultimate Performance"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource ForegroundBrush}"/>
+                                <TextBlock FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                           Margin="0,3,0,0" TextWrapping="Wrap">
+                                    מסיר עיכובים שנגרמים מניהול חשמל — מיועד לתחנות עבודה ו-DAW.
+                                    אם לא זמין, יוכפל מ-High Performance.
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Option 2 -->
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox IsChecked="{Binding DisableUsbSuspend}"
+                                      VerticalAlignment="Top" Margin="0,2,12,0"/>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="כבה USB Selective Suspend"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource ForegroundBrush}"/>
+                                <TextBlock FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                           Margin="0,3,0,0" TextWrapping="Wrap">
+                                    מונע נפילות אודיו ו-dropout ממכשירי USB — קריטי לממשקי אודיו (ASIO).
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Option 3 -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox IsChecked="{Binding DisableCoreParking}"
+                                      VerticalAlignment="Top" Margin="0,2,12,0"/>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="כבה Core Parking"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource ForegroundBrush}"/>
+                                <TextBlock FontSize="11" Foreground="{StaticResource MutedBrush}"
+                                           Margin="0,3,0,0" TextWrapping="Wrap">
+                                    מוודא שכל הליבות זמינות בכל עת — מפחית latency.
+                                    מגדיל צריכת חשמל מעט — לא מומלץ למחשבים ניידים.
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Status + Actions -->
+                <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="16,14">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="{Binding StatusText}"
+                                   Foreground="{StaticResource ForegroundBrush}"
+                                   FontSize="13" Margin="0,0,0,12"/>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <Button Content="⚡ החל מיטוב"
+                                    Command="{Binding ApplyTuningCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Padding="18,8" Margin="0,0,10,0"/>
+                            <Button Content="↩ שחזר ברירת מחדל"
+                                    Command="{Binding RestoreDefaultsCommand}"
+                                    Style="{StaticResource GhostButtonStyle}"
+                                    Padding="14,8"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Warning note -->
+                <Border Grid.Row="2" Margin="0,12,0,0" Padding="14,10"
+                        Background="#1A2010" CornerRadius="8"
+                        BorderBrush="#2D4020" BorderThickness="1">
+                    <TextBlock FontSize="11" Foreground="#7DB060" TextWrapping="Wrap">
+                        ⚠️  שינויים בתוכנית חשמל ו-Core Parking דורשים הרשאות מנהל.
+                        השירות DCleanService פועל כמנהל ולכן יבצע את השינויים ברמת המערכת.
+                        מומלץ לאתחל את המחשב לאחר ההחלה לצורך תוקף מלא.
+                    </TextBlock>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

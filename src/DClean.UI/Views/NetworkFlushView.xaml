@@ -1,0 +1,161 @@
+<UserControl x:Class="DClean.UI.Views.NetworkFlushView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+
+            <TextBlock Text="איפוס רשת" FontSize="24" FontWeight="Bold"
+                       Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="ניקוי DNS, ARP, Winsock ואיפוס TCP/IP"
+                       Foreground="#A0A0B0" FontSize="13" Margin="0,0,0,20"/>
+
+            <!-- Options -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="פעולות לביצוע" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <CheckBox IsChecked="{Binding FlushDns}"
+                                      IsEnabled="{Binding IsFlushing, Converter={StaticResource InverseBool}}"
+                                      Foreground="{StaticResource ForegroundBrush}"
+                                      Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="ניקוי DNS Cache" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ForegroundBrush}"/>
+                                    <TextBlock Text="מנקה את מטמון ה-DNS המקומי"
+                                               Foreground="#A0A0B0" FontSize="11"/>
+                                </StackPanel>
+                            </CheckBox>
+                            <CheckBox IsChecked="{Binding FlushArp}"
+                                      IsEnabled="{Binding IsFlushing, Converter={StaticResource InverseBool}}"
+                                      Foreground="{StaticResource ForegroundBrush}"
+                                      Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock Text="ניקוי ARP Cache" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ForegroundBrush}"/>
+                                    <TextBlock Text="מנקה טבלת כתובות MAC"
+                                               Foreground="#A0A0B0" FontSize="11"/>
+                                </StackPanel>
+                            </CheckBox>
+                            <CheckBox IsChecked="{Binding ReleaseRenewDhcp}"
+                                      IsEnabled="{Binding IsFlushing, Converter={StaticResource InverseBool}}"
+                                      Foreground="{StaticResource ForegroundBrush}">
+                                <StackPanel>
+                                    <TextBlock Text="Release/Renew DHCP" FontWeight="SemiBold"
+                                               Foreground="{StaticResource ForegroundBrush}"/>
+                                    <TextBlock Text="שחרר וחדש כתובת IP"
+                                               Foreground="#A0A0B0" FontSize="11"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <CheckBox IsChecked="{Binding ResetWinsock}"
+                                      IsEnabled="{Binding IsFlushing, Converter={StaticResource InverseBool}}"
+                                      Foreground="{StaticResource ForegroundBrush}"
+                                      Margin="0,0,0,10">
+                                <StackPanel>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Foreground="{StaticResource ForegroundBrush}">
+                                        <Run Text="איפוס Winsock"/>
+                                        <Run Text=" ⚠️" Foreground="{StaticResource WarningBrush}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="דורש הפעלה מחדש"
+                                               Foreground="{StaticResource WarningBrush}" FontSize="11"/>
+                                </StackPanel>
+                            </CheckBox>
+                            <CheckBox IsChecked="{Binding ResetTcpIp}"
+                                      IsEnabled="{Binding IsFlushing, Converter={StaticResource InverseBool}}"
+                                      Foreground="{StaticResource ForegroundBrush}">
+                                <StackPanel>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Foreground="{StaticResource ForegroundBrush}">
+                                        <Run Text="איפוס TCP/IP Stack"/>
+                                        <Run Text=" ⚠️" Foreground="{StaticResource WarningBrush}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="דורש הפעלה מחדש"
+                                               Foreground="{StaticResource WarningBrush}" FontSize="11"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Separator Margin="0,16,0,12" Background="#3A3A4C"/>
+
+                    <WrapPanel>
+                        <Button Content="בצע איפוס"
+                                Command="{Binding FlushCommand}"
+                                Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0"/>
+                        <Button Content="בטל"
+                                Command="{Binding CancelCommand}"
+                                Style="{StaticResource GhostButtonStyle}"
+                                IsEnabled="{Binding IsFlushing}"/>
+                    </WrapPanel>
+
+                    <ProgressBar IsIndeterminate="{Binding IsFlushing}" Height="4" Margin="0,12,0,4"
+                                 Visibility="{Binding IsFlushing, Converter={StaticResource BoolToVisibility}}"/>
+
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{StaticResource ForegroundBrush}" FontSize="13"/>
+
+                    <!-- Reboot warning -->
+                    <Border Background="#3D2B00" CornerRadius="6" Padding="12,8" Margin="0,10,0,0"
+                            Visibility="{Binding RequiresReboot, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="⚠️ נדרשת הפעלה מחדש כדי שכל השינויים ייכנסו לתוקף"
+                                   Foreground="{StaticResource WarningBrush}" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Steps Log -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="יומן פעולות" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+                    <ListView ItemsSource="{Binding Steps}" MaxHeight="300"
+                              Background="Transparent" BorderThickness="0">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="שלב" Width="160"
+                                    DisplayMemberBinding="{Binding StepName}"/>
+                                <GridViewColumn Header="פרטים" Width="400"
+                                    DisplayMemberBinding="{Binding Detail}"/>
+                                <GridViewColumn Header="סטטוס" Width="80">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="✅"/>
+                                                        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Success}" Value="False">
+                                                                <Setter Property="Text" Value="❌"/>
+                                                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

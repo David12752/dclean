@@ -1,0 +1,195 @@
+<UserControl x:Class="DClean.UI.Views.WinGetUpdaterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:DClean.UI.ViewModels"
+             FlowDirection="RightToLeft">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Padding="28,20,28,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="מעדכן תוכנות (WinGet)" FontSize="22" FontWeight="Bold"
+                               Foreground="{StaticResource ForegroundBrush}"/>
+                    <TextBlock Text="אתר ועדכן חבילות מיושנות באמצעות Windows Package Manager"
+                               FontSize="12" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="🔍 בדוק עדכונים"
+                        Command="{Binding CheckUpdatesCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        VerticalAlignment="Center" Padding="16,8"/>
+            </Grid>
+        </Border>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="1" Margin="28,12,28,0"
+                Style="{StaticResource CardStyle}" Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Content="בחר הכל" Command="{Binding SelectAllPackagesCommand}"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Padding="8,5" FontSize="11" Margin="0,0,6,0"/>
+                    <Button Content="בטל בחירה" Command="{Binding DeselectAllPackagesCommand}"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Padding="8,5" FontSize="11"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="1" Text="{Binding StatusText}"
+                           Foreground="{StaticResource MutedBrush}"
+                           FontSize="12" VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Content="⬆️ עדכן נבחרים"
+                            Command="{Binding UpgradeSelectedCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Padding="12,7" Margin="0,0,8,0"/>
+                    <Button Content="⬆️ עדכן הכל"
+                            Command="{Binding UpgradeAllCommand}"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Padding="12,7" Margin="0,0,8,0"/>
+                    <Button Content="✋ עצור"
+                            Command="{Binding CancelUpgradeCommand}"
+                            Style="{StaticResource GhostButtonStyle}"
+                            Padding="8,7"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Progress bar -->
+        <ProgressBar Grid.Row="2" Margin="28,6,28,0" Height="4"
+                     Value="{Binding Progress}" Maximum="100"
+                     Foreground="{StaticResource PrimaryBrush}"
+                     Background="{StaticResource SurfaceBrush}"/>
+
+        <!-- Content: list + log panel -->
+        <Grid Grid.Row="3" Margin="28,10,28,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Package list -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="0">
+                <ListView ItemsSource="{Binding Packages}"
+                          Background="Transparent" BorderThickness="0"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="34">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:WinGetPackageViewModel}">
+                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                                  HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="שם" Width="220">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:WinGetPackageViewModel}">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource ForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis" MaxWidth="210"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="מזהה" Width="200">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:WinGetPackageViewModel}">
+                                        <TextBlock Text="{Binding Id}"
+                                                   FontFamily="Consolas" FontSize="10"
+                                                   Foreground="{StaticResource MutedBrush}"
+                                                   TextTrimming="CharacterEllipsis" MaxWidth="190"
+                                                   ToolTip="{Binding Id}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="מותקן" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:WinGetPackageViewModel}">
+                                        <TextBlock Text="{Binding InstalledVersion}"
+                                                   FontFamily="Consolas" FontSize="11"
+                                                   Foreground="{StaticResource MutedBrush}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="זמין" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:WinGetPackageViewModel}">
+                                        <TextBlock Text="{Binding AvailableVersion}"
+                                                   FontFamily="Consolas" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource PrimaryBrush}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="מקור" Width="80">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type vm:WinGetPackageViewModel}">
+                                        <TextBlock Text="{Binding Source}"
+                                                   FontSize="10"
+                                                   Foreground="{StaticResource MutedBrush}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Border>
+
+            <!-- Log panel -->
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Padding="12,8"
+                            BorderThickness="0,0,0,1"
+                            BorderBrush="{StaticResource BorderBrush}">
+                        <TextBlock Text="פלט עדכון"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{StaticResource MutedBrush}"/>
+                    </Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Log}"
+                             Background="Transparent" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             VirtualizingPanel.IsVirtualizing="True">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}"
+                                           FontFamily="Consolas" FontSize="10"
+                                           Foreground="{StaticResource ForegroundBrush}"
+                                           TextWrapping="NoWrap"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
